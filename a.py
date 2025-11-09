@@ -8,7 +8,8 @@ from xgboost import XGBClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
+from sklearn.utils import resample
 
 warnings.filterwarnings("ignore")
 
@@ -58,7 +59,7 @@ def detectar_fallo(row):
 
 df_reduced["FaultType"] = df_reduced.apply(detectar_fallo, axis=1)
 
-print("\nDistribución de tipos de fallos detectados:")
+print("\nDistribución original de tipos de fallos:")
 print(df_reduced["FaultType"].value_counts())
 
 # ====== 4. Outliers ======
@@ -79,11 +80,28 @@ for col in numeric_cols:
 
 print("\n✅ Outliers reemplazados por la mediana.\n")
 
-# ====== 5. Preparación de datos ======
+# ====== 5. Balanceo de clases ======
 label_candidate = "FaultType"
 X = df_reduced.drop(columns=[label_candidate])
 y = df_reduced[label_candidate]
 
+# Combinar X e y para el resampling
+df_balanced = pd.concat([X, y], axis=1)
+majority_class = df_balanced["FaultType"].value_counts().idxmax()
+max_size = df_balanced["FaultType"].value_counts().max()
+
+balanced_frames = []
+for label, group in df_balanced.groupby("FaultType"):
+    balanced_frames.append(resample(group, replace=True, n_samples=max_size, random_state=42))
+df_balanced = pd.concat(balanced_frames)
+
+print("\nDistribución balanceada de clases:")
+print(df_balanced["FaultType"].value_counts())
+
+X = df_balanced.drop(columns=["FaultType"])
+y = df_balanced["FaultType"]
+
+# ====== 6. Escalado y codificación ======
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
@@ -94,12 +112,12 @@ joblib.dump(le, 'encoder.joblib')
 joblib.dump(scaler, 'scaler.joblib')
 print("💾 Codificador y scaler guardados.\n")
 
-# ====== 6. División de datos ======
+# ====== 7. División de datos ======
 X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
 )
 
-# ====== 7. Modelo base XGBoost ======
+# ====== 8. Modelo base XGBoost ======
 xgb_base = XGBClassifier(random_state=42, use_label_encoder=False, eval_metric="mlogloss")
 xgb_base.fit(X_train, y_train)
 
@@ -111,7 +129,7 @@ print("🔹 Modelo base XGBoost:")
 print(f"Accuracy: {acc_base:.4f}")
 print(f"F1-score macro: {f1_base:.4f}")
 
-# ====== 8. Hiperparametrización con RandomizedSearchCV ======
+# ====== 9. Hiperparametrización con RandomizedSearchCV ======
 param_grid = {
     "n_estimators": [100, 200, 300, 400, 500],
     "max_depth": [3, 4, 5, 6, 8, 10],
@@ -139,7 +157,7 @@ random_search.fit(X_train, y_train)
 print("\n✅ Mejores hiperparámetros encontrados:")
 print(random_search.best_params_)
 
-# ====== 9. Evaluación del modelo optimizado ======
+# ====== 10. Evaluación del modelo optimizado ======
 best_xgb = random_search.best_estimator_
 y_pred_opt = best_xgb.predict(X_test)
 
@@ -150,12 +168,12 @@ print("\n🔹 Modelo optimizado:")
 print(f"Accuracy: {acc_opt:.4f}")
 print(f"F1-score macro: {f1_opt:.4f}")
 
-# ====== 10. Comparación ======
+# ====== 11. Comparación ======
 print("\n🔸 Comparación de desempeño:")
 print(f"Accuracy base: {acc_base:.4f} → Optimizado: {acc_opt:.4f}")
 print(f"F1 base: {f1_base:.4f} → Optimizado: {f1_opt:.4f}")
 
-# ====== 11. Matriz de confusión ======
+# ====== 12. Matriz de confusión ======
 cm = confusion_matrix(y_test, y_pred_opt)
 sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
 plt.title("Matriz de confusión - XGBoost Optimizado")
@@ -163,6 +181,6 @@ plt.xlabel("Predicción")
 plt.ylabel("Real")
 plt.show()
 
-# ====== 12. Guardar modelo final ======
+# ====== 13. Guardar modelo final ======
 joblib.dump(best_xgb, 'xgboost_optimizado.joblib')
 print("\n💾 Modelo optimizado guardado como 'xgboost_optimizado.joblib'")
