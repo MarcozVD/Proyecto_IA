@@ -15,8 +15,8 @@ st.write("Ingrese los valores de los sensores para predecir el tipo de falla.")
 @st.cache_resource
 def load_model():
     try:
-        model = joblib.load("modelo.pkl")
-        encoder = joblib.load("encoder.pkl")
+        model = joblib.load("modelo_KNN_optimizado.pkl")
+        encoder = joblib.load("encoder_labels.pkl")
         return model, encoder
     except:
         st.warning("⚠️ No se encontró el modelo o el encoder. Asegúrate de tener los archivos 'modelo.pkl' y 'encoder.pkl'.")
