@@ -111,8 +111,8 @@ st.markdown('<p class="subtitle">Ingrese los valores de los sensores para obtene
 @st.cache_resource
 def load_model():
     try:
-        model = joblib.load("modelo_KNN_optimizado.pkl")
-        encoder = joblib.load("encoder_labels.pkl")
+        model = joblib.load("xgboost_optimizado.pkl")
+        encoder = joblib.load("encoder.pkl")
         return model, encoder
     except:
         st.warning("⚠️ No se encontró el modelo o el encoder. Asegúrate de tener los archivos 'modelo.pkl' y 'encoder.pkl'.")

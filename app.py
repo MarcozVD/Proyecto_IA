@@ -6,6 +6,7 @@ import joblib
 import warnings
 from xgboost import XGBClassifier
 warnings.filterwarnings("ignore")
+
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -15,13 +16,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.preprocessing import label_binarize
 
 # ====== 1. Carga de datos ======
-df_0 = pd.read_csv('MetroPT3(AirCompressor).csv')
-df = df_0.head(10000)
-df = df_0.rename(columns={"Unnamed: 0": "Nr"})
+df = pd.read_csv('MetroPT3(AirCompressor).csv')
+df = df.rename(columns={"Unnamed: 0": "Nr"})
 df = df.drop(columns=['timestamp', 'Nr'])
 
 # ====== 2. Estadística descriptiva ======
@@ -39,38 +37,42 @@ corr_threshold = 0.8
 corr_matrix = df.corr(numeric_only=True).abs()
 upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
 to_drop = [column for column in upper.columns if any(upper[column] > corr_threshold)]
-
 df_reduced = df.drop(columns=to_drop)
 print("Columnas eliminadas por alta correlación:", to_drop)
 
-# ====== 3.5 Creación de etiqueta de fallos ======
-# Calcular min y max reales de las columnas reducidas
+# ====== 3.5 Creación de etiqueta de fallos (Opción 1: etiquetas combinadas) ======
 col_stats = df_reduced.describe().loc[['min', 'max']]
+
 def detectar_fallo(row):
-    # Condiciones simplificadas (puedes ajustarlas con más precisión)
+    fallos = []
+
     if 'Motor_current' in row.index:
         if row['Motor_current'] < 0.5:
-            return "Apagado"
+            fallos.append("Apagado")
         elif row['Motor_current'] > 9:
-            return "Sobrecarga"
+            fallos.append("Sobrecarga")
 
     if 'Oil_temperature' in row.index:
         min_temp, max_temp = col_stats.loc['min', 'Oil_temperature'], col_stats.loc['max', 'Oil_temperature']
         if row['Oil_temperature'] < min_temp * 0.8 or row['Oil_temperature'] > max_temp * 1.2:
-            return "Temperatura Anómala"
+            fallos.append("Temperatura Anómala")
 
     if 'Reservoirs' in row.index and row['Reservoirs'] < 7.0:
-        return "Presión Baja en Reservorio"
+        fallos.append("Presión Baja en Reservorio")
 
     if 'DV_pressure' in row.index and row['DV_pressure'] == 0:
-        return "Compresor Bajo Carga"
+        fallos.append("Compresor Bajo Carga")
 
     if 'Oil_level' in row.index and row['Oil_level'] == 1:
-        return "Nivel Bajo de Aceite"
+        fallos.append("Nivel Bajo de Aceite")
 
-    return "Normal"
+    if not fallos:
+        fallos.append("Normal")
+
+    return ", ".join(fallos)
 
 df_reduced["FaultType"] = df_reduced.apply(detectar_fallo, axis=1)
+
 print("\nDistribución de tipos de fallos detectados:")
 print(df_reduced["FaultType"].value_counts())
 
@@ -125,6 +127,10 @@ print(df_scaled.head())
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 
+# Guardar el codificador
+joblib.dump(le, 'encoder.joblib')
+print("\n💾 Codificador guardado como 'encoder.joblib'")
+
 # ====== 9. División de datos ======
 X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
@@ -140,22 +146,31 @@ models = {
 }
 
 results = []
+best_model = None
+best_score = -1
 
 for name, model in models.items():
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    
     acc = accuracy_score(y_test, y_pred)
     f1m = f1_score(y_test, y_pred, average='macro')
     cm = confusion_matrix(y_test, y_pred)
-    
     results.append((name, acc, f1m))
     print(f"\n{name}")
     print(f"Accuracy: {acc:.4f}")
     print(f"F1-score (macro): {f1m:.4f}")
     print("Matriz de confusión:\n", cm)
 
+    if f1m > best_score:
+        best_score = f1m
+        best_model = model
+        best_name = name
+
 # ====== 11. Comparación de resultados ======
 df_results = pd.DataFrame(results, columns=["Modelo", "Accuracy", "F1_macro"])
 print("\nResultados comparativos:")
 print(df_results.sort_values(by="F1_macro", ascending=False))
+
+# ====== 12. Guardar el mejor modelo ======
+joblib.dump(best_model, 'best_model.joblib')
+print(f"\n💾 Mejor modelo guardado: {best_name} con F1={best_score:.4f}")
