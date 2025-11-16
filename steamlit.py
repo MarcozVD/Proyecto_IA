@@ -1,207 +1,60 @@
+# app.py
 import streamlit as st
 import joblib
 import numpy as np
+import pandas as pd
 
-# ==========================
-# Configuración inicial
-# ==========================
-st.set_page_config(
-    page_title="Predicción de Fallas", 
-    page_icon="⚙️", 
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="Predicción de Fallas – Compresor", layout="wide")
 
-# CSS personalizado para mejorar la estética
-st.markdown("""
-    <style>
-    /* Mejorar el título principal */
-    .main-title {
-        text-align: center;
-        color: #1f77b4;
-        font-size: 2.5em;
-        font-weight: bold;
-        margin-bottom: 0.5em;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    /* Mejorar la descripción */
-    .subtitle {
-        text-align: center;
-        color: #666;
-        font-size: 1.1em;
-        margin-bottom: 2em;
-    }
-    
-    /* Estilo para las tarjetas de entrada */
-    .stSlider, .stNumberInput {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Mejorar el botón de predicción */
-    .stButton > button {
-        width: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        font-size: 1.2em;
-        font-weight: bold;
-        padding: 0.75rem;
-        border-radius: 10px;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    
-    /* Estilo para alertas de éxito */
-    .success-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        font-size: 1.3em;
-        font-weight: bold;
-        margin: 2rem 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    /* Separadores más elegantes */
-    hr {
-        border: none;
-        height: 2px;
-        background: linear-gradient(to right, transparent, #667eea, transparent);
-        margin: 2rem 0;
-    }
-    
-    /* Mejorar secciones */
-    .section-header {
-        color: #667eea;
-        font-size: 1.5em;
-        font-weight: bold;
-        margin: 1.5rem 0 1rem 0;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid #667eea;
-    }
-    
-    /* Footer personalizado */
-    .footer {
-        text-align: center;
-        color: #999;
-        padding: 2rem 0 1rem 0;
-        font-size: 0.9em;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# ===============================
+#   CARGAR MODELO Y SCALER
+# ===============================
+scaler = joblib.load("models/scaler_knn.pkl")
+model = joblib.load("models/modelo_knn.pkl")
 
-# Título con HTML personalizado
-st.markdown('<h1 class="main-title">🔍 Predicción de Tipo de Falla</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">Ingrese los valores de los sensores para obtener una predicción precisa del tipo de falla</p>', unsafe_allow_html=True)
+st.title("🔧 Predicción de Fallas en Compresor – IA MetroPT3")
+st.write("Ingrese los valores de los sensores para predecir si existe falla (1) o no (0).")
 
-# ==========================
-# Cargar modelo y encoder
-# ==========================
-@st.cache_resource
-def load_model():
-    try:
-        model = joblib.load("xgboost_optimizado.joblib")
-        encoder = joblib.load("encoder.joblib")
-        return model, encoder
-    except:
-        st.warning("⚠️ No se encontró el modelo o el encoder. Asegúrate de tener los archivos 'modelo.pkl' y 'encoder.pkl'.")
-        return None, None
 
-model, encoder = load_model()
+# ===============================
+#   CAMPOS NECESARIOS SEGÚN X
+# ===============================
+features = ['H1','Towers','DV_eletric','COMP','MPG','Reservoirs','TP3','TP2']
 
-# ==========================
-# Rango de sliders (min y max del dataset)
-# ==========================
-ranges = {
-    "TP2": (-0.032, 10.676),
-    "TP3": (0.73, 10.302),
-    "DV_pressure": (-0.032, 9.844),
-    "Oil_temperature": (15.4, 89.05),
-    "Motor_current": (0.02, 9.295),
-    "Towers": (0.0, 1.0),
-    "LPS": (0.0, 1.0),
-    "Pressure_switch": (0.0, 1.0),
-    "Oil_level": (0.0, 1.0),
-    "Caudal_impulses": (0.0, 1.0),
-}
-
-# ==========================
-# Entradas del usuario
-# ==========================
-st.markdown('<div class="section-header">📊 Parámetros de Entrada</div>', unsafe_allow_html=True)
-
-# Organizar en columnas para mejor visualización
-col1, col2 = st.columns(2)
+form = st.form("input_form")
 
 inputs = {}
-features_list = list(ranges.items())
+col1, col2, col3 = st.columns(3)
 
-# Dividir las características en dos columnas
-for idx, (feature, (min_val, max_val)) in enumerate(features_list):
-    with col1 if idx % 2 == 0 else col2:
-        # Usar slider si el rango es pequeño, input numérico si es amplio
-        if max_val - min_val > 2:
-            value = st.slider(
-                feature, 
-                float(min_val), 
-                float(max_val), 
-                float((min_val + max_val) / 2),
-                help=f"Rango: {min_val:.3f} - {max_val:.3f}"
-            )
-        else:
-            value = st.number_input(
-                feature, 
-                float(min_val), 
-                float(max_val), 
-                float((min_val + max_val) / 2),
-                help=f"Rango: {min_val:.3f} - {max_val:.3f}"
-            )
-        inputs[feature] = value
-
-# Espaciado antes del botón
-st.markdown("<br>", unsafe_allow_html=True)
-
-# ==========================
-# Botón de predicción
-# ==========================
-if st.button("🔮 Realizar Predicción"):
-    if model is None:
-        st.error("❌ No se pudo cargar el modelo. Verifica los archivos.")
+for i, col in enumerate(features):
+    if i % 3 == 0:
+        inputs[col] = col1.number_input(col, value=0.0, format="%.5f")
+    elif i % 3 == 1:
+        inputs[col] = col2.number_input(col, value=0.0, format="%.5f")
     else:
-        with st.spinner('Analizando datos...'):
-            # Convertir a array para el modelo
-            X_input = np.array([list(inputs.values())])
-            pred = model.predict(X_input)
-            
-            # Decodificar si el encoder existe
-            try:
-                pred_label = encoder.inverse_transform(pred)[0]
-            except:
-                pred_label = str(pred[0])
+        inputs[col] = col3.number_input(col, value=0.0, format="%.5f")
 
-            # Mostrar resultado con estilo personalizado
-            st.markdown(f"""
-                <div class="success-box">
-                    ✅ Tipo de falla predicho: <br><strong>{pred_label}</strong>
-                </div>
-            """, unsafe_allow_html=True)
+submit = form.form_submit_button("🔍 Predecir")
 
-# ==========================
-# Pie de página
-# ==========================
-st.markdown("---")
-st.markdown(
-    '<div class="footer">Aplicación creada con ❤️ usando Streamlit y Python | © 2025</div>', 
-    unsafe_allow_html=True
-)
+# ===============================
+#   PROCESAR Y PREDICCIÓN
+# ===============================
+if submit:
+    # Crear dataframe con una sola fila
+    df_input = pd.DataFrame([inputs])
+
+    # Escalar igual que en el entrenamiento
+    df_scaled = scaler.transform(df_input)
+
+    # Predicción
+    pred = model.predict(df_scaled)[0]
+    prob = model.predict_proba(df_scaled)[0][1]
+
+    st.subheader("📌 Resultado de la predicción")
+    if pred == 1:
+        st.error(f"⚠️ **Posible Falla Detectada** (probabilidad: {prob:.2f})")
+    else:
+        st.success(f"✔️ **Sistema en estado normal** (probabilidad de falla: {prob:.2f})")
+
+    st.write("Valores utilizados en la predicción:")
+    st.dataframe(df_input)
