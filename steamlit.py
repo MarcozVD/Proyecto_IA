@@ -32,17 +32,27 @@ FEATURES = [
 
 st.subheader("Ingresa los valores del sensor")
 
+# Crear inputs para el usuario
 inputs = {}
-for feat in FEATURES:
-    inputs[feat] = st.number_input(feat, value=0.0, step=0.1)
+for feature in FEATURES:
+    inputs[feature] = st.number_input(
+        f"{feature}:", 
+        value=0.0, 
+        step=0.1,
+        format="%.3f"
+    )
 
 # ==========================================
 # Botón de predicción
 # ==========================================
 if st.button("🔍 Predecir falla"):
-    data = pd.DataFrame([inputs])  # convertir a dataframe
+    # Convertir a DataFrame
+    data = pd.DataFrame([inputs])
+
+    # Escalar
     data_scaled = scaler.transform(data)
 
+    # Predicción
     pred = model.predict(data_scaled)[0]
     prob = model.predict_proba(data_scaled)[0][1]
 
@@ -55,34 +65,4 @@ if st.button("🔍 Predecir falla"):
         st.success(f"✔ **Estado normal** — Probabilidad de falla: {prob*100:.2f}%")
 
     st.write("---")
-    st.info("El modelo está basado en KNN optimizado con SMOTE y GridSearchCV.")
-
-# ==========================================
-# Cargar datos desde archivo CSV
-# ==========================================
-st.subheader("📁 Predicción desde archivo CSV")
-
-csv_file = st.file_uploader("Sube un archivo con las columnas requeridas", type=['csv'])
-
-if csv_file is not None:
-    df = pd.read_csv(csv_file)
-
-    # Verificación de columnas
-    if not all(col in df.columns for col in FEATURES):
-        st.error(f"❌ El archivo debe contener estas columnas:\n{FEATURES}")
-    else:
-        st.success("Archivo válido. Generando predicciones...")
-        df_scaled = scaler.transform(df[FEATURES])
-        df["pred_falla"] = model.predict(df_scaled)
-        df["prob_falla"] = model.predict_proba(df_scaled)[:,1]
-
-        st.write(df.head())
-
-        # Descargar resultados
-        csv_out = df.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            "⬇ Descargar resultados CSV",
-            csv_out,
-            "predicciones_fallas.csv",
-            "text/csv"
-        )
+    st.info("Modelo KNN entrenado con datos balanceados (SMOTE + GridSearchCV).")
