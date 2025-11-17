@@ -1,7 +1,6 @@
 # app_streamlit.py
 import streamlit as st
 import joblib
-import numpy as np
 import pandas as pd
 
 # ==========================================================
@@ -19,10 +18,13 @@ st.write("Introduce los valores de los sensores para predecir la falla.")
 # ==========================================================
 # ENTRADA DE DATOS
 # ==========================================================
-# Lista de columnas del modelo
-columns = ['H1','Towers','DV_eletric','COMP','MPG','Reservoirs','TP3','TP2']
-input_data = {}
+# Lista completa de columnas que el modelo espera
+columns = [
+    'H1','Towers','DV_eletric','COMP','MPG','Reservoirs','TP3','TP2',
+    'DV_pressure','LPS','Motor_current','Oil_temperature'
+]
 
+input_data = {}
 for col in columns:
     input_data[col] = st.number_input(f"Ingrese valor para {col}", value=0.0, format="%.3f")
 
