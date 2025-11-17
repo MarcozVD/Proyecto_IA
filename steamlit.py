@@ -5,8 +5,8 @@ import pandas as pd
 # ================================
 # CARGA DEL MODELO Y SCALER
 # ================================
-model = joblib.load("models/modelo_entrenado.pkl")
-scaler = joblib.load("models/scaler.pkl")
+scaler = joblib.load("models/scaler_knn.pkl")
+model = joblib.load("models/modelo_knn.pkl")
 
 FEATURES = ['DV_pressure', 'LPS', 'Motor_current', 'Oil_temperature']
 
