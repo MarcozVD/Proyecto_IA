@@ -1,37 +1,47 @@
+# app_streamlit.py
 import streamlit as st
 import joblib
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-# ---------------------------
-# Cargar modelo y orden real
-# ---------------------------
-try:
-    model = joblib.load("models/modelo_entrenado.pkl")
-    column_order = joblib.load("models/column_order.pkl")
-except:
-    st.error("No se pudo cargar el modelo o el archivo column_order.pkl")
-    st.stop()
+# ==========================================================
+# CARGA MODELO Y SCALER
+# ==========================================================
+scaler = joblib.load("models/scaler_knn.pkl")
+model = joblib.load("models/modelo_knn.pkl")
 
-st.title("Predicción de fallas")
+# ==========================================================
+# TÍTULO
+# ==========================================================
+st.title("Predicción de Fallas del Compresor de Aire")
+st.write("Introduce los valores de los sensores para predecir la falla.")
 
-# Ejemplo: genera inputs automáticos
-inputs = {}
+# ==========================================================
+# ENTRADA DE DATOS
+# ==========================================================
+# Lista de columnas del modelo
+columns = ['H1','Towers','DV_eletric','COMP','MPG','Reservoirs','TP3','TP2']
+input_data = {}
 
-for col in column_order:
-    inputs[col] = st.number_input(f"Ingrese {col}", value=0.0)
+for col in columns:
+    input_data[col] = st.number_input(f"Ingrese valor para {col}", value=0.0, format="%.3f")
 
 # Convertir a DataFrame
-df = pd.DataFrame([inputs])
+input_df = pd.DataFrame([input_data])
 
-# Asegurar orden correcto
-df = df[column_order]
-
-# ---------------------------
-# Predicción
-# ---------------------------
-try:
-    pred = model.predict(df)
-    st.success(f"Predicción: {pred[0]}")
-except Exception as e:
-    st.error(f"❌ Error al procesar predicción: {e}")
+# ==========================================================
+# BOTÓN DE PREDICCIÓN
+# ==========================================================
+if st.button("Predecir Falla"):
+    # Escalar datos
+    input_scaled = scaler.transform(input_df)
+    
+    # Predicción
+    prediction = model.predict(input_scaled)[0]
+    prob = model.predict_proba(input_scaled)[0][1]
+    
+    # Mostrar resultados
+    if prediction == 1:
+        st.error(f"⚠️ Falla detectada con probabilidad {prob:.2%}")
+    else:
+        st.success(f"✅ Sin falla detectada. Probabilidad de falla: {prob:.2%}")
