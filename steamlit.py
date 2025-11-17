@@ -1,72 +1,88 @@
-# app.py
+# -*- coding: utf-8 -*-
 import streamlit as st
-import joblib
 import pandas as pd
 import numpy as np
+import joblib
 
-st.set_page_config(page_title="Predicción de Fallas – Compresor", layout="wide")
+# ==========================================
+# Cargar modelo y scaler
+# ==========================================
+st.title("🔧 Predicción de Fallas — MetroPT3 AirCompressor")
 
-# ===============================
-#   CARGAR MODELO Y SCALER
-# ===============================
-try:
+@st.cache_resource
+def load_model():
     scaler = joblib.load("models/scaler_knn.pkl")
     model = joblib.load("models/modelo_knn.pkl")
+    return scaler, model
+
+try:
+    scaler, model = load_model()
+    st.success("Modelo cargado correctamente.")
 except:
-    st.error("❌ No se encontró el modelo o el scaler en la carpeta 'models/'.")
+    st.error("❌ No se pudo cargar el modelo. Verifica la ruta /models/")
     st.stop()
 
-# Columnas EXACTAS usadas en el entrenamiento del scaler
-FEATURES = list(scaler.feature_names_in_)
+# ==========================================
+# Campos que el modelo necesita
+# ==========================================
+FEATURES = [
+    'H1', 'Towers', 'DV_eletric', 'COMP', 'MPG',
+    'Reservoirs', 'TP3', 'TP2'
+]
 
-st.title("🔧 Predicción de Fallas – Compresor MetroPT3")
-st.write("Ingrese los valores de los sensores para realizar una predicción basada en el modelo entrenado.")
-
-# ===============================
-#   FORMULARIO DE ENTRADA
-# ===============================
-st.subheader("📝 Ingrese los valores de los sensores:")
-
-form = st.form("sensor_form")
+st.subheader("Ingresa los valores del sensor")
 
 inputs = {}
-cols = form.columns(3)
+for feat in FEATURES:
+    inputs[feat] = st.number_input(feat, value=0.0, step=0.1)
 
-# Crear campos de entrada dinámicamente con los nombres EXACTOS del scaler
-for i, col in enumerate(FEATURES):
-    inputs[col] = cols[i % 3].number_input(
-        label=col,
-        value=0.0,
-        format="%.5f"
-    )
+# ==========================================
+# Botón de predicción
+# ==========================================
+if st.button("🔍 Predecir falla"):
+    data = pd.DataFrame([inputs])  # convertir a dataframe
+    data_scaled = scaler.transform(data)
 
-submit = form.form_submit_button("🔍 Predecir")
+    pred = model.predict(data_scaled)[0]
+    prob = model.predict_proba(data_scaled)[0][1]
 
-# ===============================
-#   PROCESAR Y PREDECIR
-# ===============================
-if submit:
-    # Construir DataFrame con columnas correctas y mismo orden
-    df_input = pd.DataFrame([inputs], columns=FEATURES)
-
-    # Escalado
-    try:
-        df_scaled = scaler.transform(df_input)
-    except Exception as e:
-        st.error("❌ Error al escalar los datos. Revisa que los nombres de columnas coincidan.")
-        st.code(str(e))
-        st.stop()
-
-    # Predicción
-    pred = model.predict(df_scaled)[0]
-    prob = model.predict_proba(df_scaled)[0][1]
-
-    st.subheader("📌 Resultado de la predicción")
+    st.write("---")
+    st.subheader("📌 Resultado:")
 
     if pred == 1:
-        st.error(f"⚠️ **Posible falla detectada** – Probabilidad: **{prob:.2f}**")
+        st.error(f"⚠ **FALLA DETECTADA** — Probabilidad: {prob*100:.2f}%")
     else:
-        st.success(f"✔️ **Sistema estable** – Probabilidad de falla: **{prob:.2f}**")
+        st.success(f"✔ **Estado normal** — Probabilidad de falla: {prob*100:.2f}%")
 
-    st.write("Valores usados en la predicción:")
-    st.dataframe(df_input)
+    st.write("---")
+    st.info("El modelo está basado en KNN optimizado con SMOTE y GridSearchCV.")
+
+# ==========================================
+# Cargar datos desde archivo CSV
+# ==========================================
+st.subheader("📁 Predicción desde archivo CSV")
+
+csv_file = st.file_uploader("Sube un archivo con las columnas requeridas", type=['csv'])
+
+if csv_file is not None:
+    df = pd.read_csv(csv_file)
+
+    # Verificación de columnas
+    if not all(col in df.columns for col in FEATURES):
+        st.error(f"❌ El archivo debe contener estas columnas:\n{FEATURES}")
+    else:
+        st.success("Archivo válido. Generando predicciones...")
+        df_scaled = scaler.transform(df[FEATURES])
+        df["pred_falla"] = model.predict(df_scaled)
+        df["prob_falla"] = model.predict_proba(df_scaled)[:,1]
+
+        st.write(df.head())
+
+        # Descargar resultados
+        csv_out = df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            "⬇ Descargar resultados CSV",
+            csv_out,
+            "predicciones_fallas.csv",
+            "text/csv"
+        )
