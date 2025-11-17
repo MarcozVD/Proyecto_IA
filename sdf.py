@@ -4,7 +4,7 @@
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, f1_score, recall_score
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, f1_score, recall_score, roc_auc_score
 from imblearn.over_sampling import SMOTE
 import matplotlib.pyplot as plt
 import os
@@ -44,16 +44,11 @@ failures['start'] = pd.to_datetime(failures['start'], format='%d/%m/%Y %H:%M')
 failures['end'] = pd.to_datetime(failures['end'], format='%d/%m/%Y %H:%M')
 
 df['falla'] = 0
-for i, row in failures.iterrows():
+for _, row in failures.iterrows():
     df.loc[(df['timestamp'] >= row['start']) & (df['timestamp'] <= row['end']), 'falla'] = 1
 
 print("\nDistribución de fallas:")
 print(df['falla'].value_counts())
-
-if df['falla'].sum() == 0:
-    print("\n⚠ NO SE ETIQUETÓ NINGUNA FALLA — revisar timestamps del dataset.")
-else:
-    print("\n✔ Falla detectada correctamente en rango de fechas.\n")
 
 # ==========================================================
 # LIMPIEZA Y OUTLIERS
@@ -83,7 +78,7 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# Balanceo SMOTE — MUY IMPORTANTE
+# Balanceo SMOTE - SOLO TRAIN
 sm = SMOTE(random_state=42)
 X_train_res, y_train_res = sm.fit_resample(X_train_scaled, y_train)
 
@@ -111,22 +106,39 @@ grid = GridSearchCV(
 
 grid.fit(X_train_res, y_train_res)
 
+best_knn = grid.best_estimator_
 print("Mejores parámetros:", grid.best_params_)
 
-# Modelo final
-best_knn = grid.best_estimator_
-y_pred = best_knn.predict(X_test_scaled)
+# ==========================================================
+# PREDICCIÓN EN TEST NORMAL (desbalanceado)
+# ==========================================================
+y_pred_test = best_knn.predict(X_test_scaled)
+probs_test = best_knn.predict_proba(X_test_scaled)[:,1]
+
+print("\n=========== RESULTADOS EN TEST DESBALANCEADO ===========\n")
+print("Accuracy:", accuracy_score(y_test, y_pred_test))
+print("Recall:", recall_score(y_test, y_pred_test))
+print("F1 Score:", f1_score(y_test, y_pred_test))
+print("ROC-AUC:", roc_auc_score(y_test, probs_test))
+
+print("\nMatriz de confusión:\n", confusion_matrix(y_test, y_pred_test))
+print("\nReporte de clasificación:\n", classification_report(y_test, y_pred_test))
 
 # ==========================================================
-# MÉTRICAS FINALES
+# BALANCEAR TEST SOLO PARA EVALUACIÓN
 # ==========================================================
-print("\n=========== RESULTADOS KNN ===========\n")
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print("Recall:", recall_score(y_test, y_pred))
-print("F1 Score:", f1_score(y_test, y_pred))
+sm_test = SMOTE(random_state=42)
+X_test_res, y_test_res = sm_test.fit_resample(X_test_scaled, y_test)
 
-print("\nMatriz de confusión:\n", confusion_matrix(y_test, y_pred))
-print("\nReporte de clasificación:\n", classification_report(y_test, y_pred))
+y_pred_bal = best_knn.predict(X_test_res)
+
+print("\n=========== RESULTADOS EN TEST BALANCEADO ===========\n")
+print("Accuracy:", accuracy_score(y_test_res, y_pred_bal))
+print("Recall:", recall_score(y_test_res, y_pred_bal))
+print("F1 Score:", f1_score(y_test_res, y_pred_bal))
+
+print("\nMatriz de confusión:\n", confusion_matrix(y_test_res, y_pred_bal))
+print("\nReporte de clasificación (BALANCEADO):\n", classification_report(y_test_res, y_pred_bal))
 
 # ==========================================================
 # GUARDADO DE MODELO

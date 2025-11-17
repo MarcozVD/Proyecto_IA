@@ -303,7 +303,6 @@ from xgboost import XGBClassifier
 # Diccionario de modelos a evaluar
 models = {
     "LogisticRegression": LogisticRegression(max_iter=1000, class_weight='balanced', random_state=42),
-    "RandomForest": RandomForestClassifier(n_estimators=200, class_weight='balanced', random_state=42),
     "LinearSVM": LinearSVC(max_iter=3000, class_weight='balanced', random_state=42),
     "KNN": KNeighborsClassifier(n_neighbors=5),
     "XGBoost": XGBClassifier(

@@ -73,7 +73,7 @@ df.drop(columns=['Pressure_switch','Caudal_impulses','Oil_level'], inplace=True)
 # ==========================================================
 X = df.drop(columns=['falla','timestamp','Unnamed: 0'])
 y = df['falla']
-
+print('hola', X.head())
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
     test_size=0.2,
