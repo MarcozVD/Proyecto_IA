@@ -1,20 +1,41 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
-import joblib
 import pandas as pd
 import numpy as np
+import joblib
+import os
 
-# ==============================
+st.title("🔧 Predicción de Falla - Compresor Metro")
+
+# ================================
+# Mostrar archivos existentes (debug)
+# ================================
+st.write("📂 Archivos disponibles en el proyecto:")
+for f in os.listdir("."):
+    st.write(" - ", f)
+
+if os.path.exists("models"):
+    st.write("📁 Archivos dentro de /models:")
+    for f in os.listdir("models"):
+        st.write(" - ", f)
+else:
+    st.error("❌ La carpeta 'models' no existe")
+    st.stop()
+
+# ================================
 # Cargar modelo y scaler
-# ==============================
-model = joblib.load("models/modelo_entrenado.pkl")
-scaler = joblib.load("models/scaler_entrenado.pkl")
+# ================================
+try:
+    model = joblib.load("models/modelo_knn.pkl")
+    scaler = joblib.load("models/scaler_knn.pkl")
+    st.success("✔ Modelo y scaler cargados correctamente")
+except Exception as e:
+    st.error(f"❌ Error cargando modelo/scaler: {e}")
+    st.stop()
 
-st.title("🔧 Predicción de fallas — Compresor Metro")
-
-# ==============================
-# FEATURES EXACTAS DEL MODELO
-# ==============================
+# ================================
+# FEATURES EXACTAS DEL ENTRENAMIENTO
+# ================================
 FEATURES = [
     "H1",
     "Towers",
@@ -30,26 +51,34 @@ FEATURES = [
     "Oil_temperature"
 ]
 
-st.subheader("Ingrese valores de sensores")
+st.subheader("📥 Ingrese los valores de sensores")
 
-user_input = {}
+inputs = {}
 
+# Crear inputs numéricos
 for col in FEATURES:
-    user_input[col] = st.number_input(col, value=0.0)
+    inputs[col] = st.number_input(col, value=0.0)
 
-# ==============================
-# PREDICCIÓN
-# ==============================
-if st.button("Predecir falla"):
-    data = pd.DataFrame([user_input])[FEATURES]
+# Convertir a DataFrame
+data_input = pd.DataFrame([inputs])
 
-    # Escalar
-    data_scaled = scaler.transform(data)
+# ================================
+# BOTÓN DE PREDICCIÓN
+# ================================
+if st.button("🔍 Predecir Falla"):
+    try:
+        # Escalar
+        data_scaled = scaler.transform(data_input)
 
-    # Predicción
-    pred = model.predict(data_scaled)[0]
+        # Predicción
+        pred = model.predict(data_scaled)[0]
+        proba = model.predict_proba(data_scaled)[0][1]
 
-    if pred == 1:
-        st.error("⚠ FALLA DETECTADA EN EL COMPRESOR")
-    else:
-        st.success("✔ Sin falla detectada")
+        st.write("---")
+        if pred == 1:
+            st.error(f"⚠ FALLA DETECTADA (probabilidad {proba:.2f})")
+        else:
+            st.success(f"✔ SIN Falla (probabilidad de falla {proba:.2f})")
+
+    except Exception as e:
+        st.error(f"❌ Error al procesar predicción: {e}")
