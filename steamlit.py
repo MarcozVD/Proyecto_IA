@@ -1,63 +1,53 @@
-# -*- coding: utf-8 -*-
 import streamlit as st
-import pandas as pd
 import joblib
-
-st.title("🔧 Predicción de Fallas — MetroPT3 AirCompressor")
-
-# ================================
-# Cargar modelo y scaler
-# ================================
-@st.cache_resource
-def load_model():
-    scaler = joblib.load("models/scaler_knn.pkl")
-    model = joblib.load("models/modelo_knn.pkl")
-    return scaler, model
-
-scaler, model = load_model()
+import pandas as pd
 
 # ================================
-# Lista EXACTA de columnas usadas en el entrenamiento
-# Debe coincidir 1:1
+# CARGA DEL MODELO Y SCALER
 # ================================
-FEATURES = [
-    'H1', 'Towers', 'DV_eletric', 'COMP', 'MPG',
-    'Reservoirs', 'TP3', 'TP2'
-]
+model = joblib.load("modelo_entrenado.pkl")
+scaler = joblib.load("scaler.pkl")
 
-st.subheader("Ingrese los valores de los sensores:")
+FEATURES = ['DV_pressure', 'LPS', 'Motor_current', 'Oil_temperature']
 
-inputs = {}
-for col in FEATURES:
-    inputs[col] = st.number_input(col, value=0.0, step=0.1)
+st.title("Predicción de Fallas con XGBoost 🔧⚙️")
+st.write("Modelo cargado sin necesidad de subir CSV.")
 
 # ================================
-# Botón de predicción
+# FORMULARIO DE ENTRADA
 # ================================
-if st.button("🔍 Predecir falla"):
+st.subheader("Ingresa los valores para la predicción:")
 
-    # Se construye DataFrame con EXACTA estructura
-    df_input = pd.DataFrame([[inputs[col] for col in FEATURES]], columns=FEATURES)
+dv_pressure = st.number_input("DV_pressure", min_value=0.0, value=1.0)
+lps = st.number_input("LPS", min_value=0.0, value=1.0)
+motor_current = st.number_input("Motor_current", min_value=0.0, value=1.0)
+oil_temperature = st.number_input("Oil_temperature", min_value=0.0, value=40.0)
 
-    # Escalado
+# ================================
+# BOTÓN PARA PREDICCIÓN
+# ================================
+if st.button("Predecir"):
     try:
-        df_scaled = scaler.transform(df_input)
+        # Construir dataframe EXACTO como el usado en entrenamiento
+        data = pd.DataFrame([{
+            'DV_pressure': dv_pressure,
+            'LPS': lps,
+            'Motor_current': motor_current,
+            'Oil_temperature': oil_temperature
+        }])[FEATURES]  # Garantiza orden correcto
+
+        # Escalar con el mismo scaler del entrenamiento
+        data_scaled = scaler.transform(data)
+
+        # Predicción
+        prediction = model.predict(data_scaled)[0]
+        proba = model.predict_proba(data_scaled)[0][prediction]
+
+        if prediction == 1:
+            st.error(f"⚠️ FALLA DETECTADA — Probabilidad: {proba:.4f}")
+        else:
+            st.success(f"✔️ Sistema Operando — Probabilidad: {proba:.4f}")
+
     except Exception as e:
-        st.error("❌ Error al transformar datos. Revisa nombres y orden de las columnas.")
+        st.error("❌ Error inesperado durante la predicción:")
         st.code(str(e))
-        st.stop()
-
-    # Predicción
-    pred = model.predict(df_scaled)[0]
-    prob = model.predict_proba(df_scaled)[0][1]
-
-    st.write("---")
-    st.subheader("📌 Resultado:")
-
-    if pred == 1:
-        st.error(f"⚠ FALLA DETECTADA — Probabilidad: {prob*100:.2f}%")
-    else:
-        st.success(f"✔ Estado NORMAL — Probabilidad de falla: {prob*100:.2f}%")
-
-    st.write("---")
-    st.info("Modelo KNN optimizado con SMOTE + GridSearchCV.")
