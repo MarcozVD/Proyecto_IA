@@ -26,22 +26,25 @@ input_data = {}
 for col in columns:
     input_data[col] = st.number_input(f"Ingrese valor para {col}", value=0.0, format="%.3f")
 
-# Convertir a DataFrame
-input_df = pd.DataFrame([input_data])
+# Convertir a DataFrame con columnas exactas en el mismo orden
+input_df = pd.DataFrame([input_data], columns=columns)
 
 # ==========================================================
 # BOTÓN DE PREDICCIÓN
 # ==========================================================
 if st.button("Predecir Falla"):
-    # Escalar datos
-    input_scaled = scaler.transform(input_df)
-    
-    # Predicción
-    prediction = model.predict(input_scaled)[0]
-    prob = model.predict_proba(input_scaled)[0][1]
-    
-    # Mostrar resultados
-    if prediction == 1:
-        st.error(f"⚠️ Falla detectada con probabilidad {prob:.2%}")
-    else:
-        st.success(f"✅ Sin falla detectada. Probabilidad de falla: {prob:.2%}")
+    try:
+        # Escalar datos
+        input_scaled = scaler.transform(input_df)
+        
+        # Predicción
+        prediction = model.predict(input_scaled)[0]
+        prob = model.predict_proba(input_scaled)[0][1]
+        
+        # Mostrar resultados
+        if prediction == 1:
+            st.error(f"⚠️ Falla detectada con probabilidad {prob:.2%}")
+        else:
+            st.success(f"✅ Sin falla detectada. Probabilidad de falla: {prob:.2%}")
+    except ValueError as e:
+        st.error(f"Error en la predicción: {e}")
