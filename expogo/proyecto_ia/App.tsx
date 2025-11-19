@@ -139,216 +139,249 @@ const App = () => {
   // Pantalla de conexión
   if (!isConnected) {
     const ipPresets = [
-      { label: 'Localhost', ip: 'localhost:5000' },
+      { label: 'Local', ip: 'localhost:5000' },
       { label: '192.168.1.100', ip: '192.168.1.100:5000' },
       { label: '127.0.0.1', ip: '127.0.0.1:5000' },
     ];
 
     return (
-      <ScrollView style={styles.connectionContainer} contentContainerStyle={styles.connectionScrollContent}>
-        <View style={styles.connectionCard}>
-          <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>🔧</Text>
-          </View>
-          
-          <Text style={styles.title}>Sistema Inteligente de{'\n'}Predicción de Fallas</Text>
-          <Text style={styles.subtitle}>Compresor de Aire MetroPT3{'\n'}Modelo XGBoost con Optimización de Umbral</Text>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>📡 Dirección IP del Servidor</Text>
-            <TextInput
-              style={styles.input}
-              value={serverIP}
-              onChangeText={setServerIP}
-              placeholder="192.168.1.100:5000"
-              placeholderTextColor="#94a3b8"
-            />
+      <View style={styles.connectionContainerNew}>
+        <ScrollView contentContainerStyle={styles.connectionScrollContentNew} showsVerticalScrollIndicator={false}>
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
+            <View style={styles.heroBackground} />
+            <Text style={styles.heroIcon}>⚡</Text>
+            <Text style={styles.heroTitle}>Predicción de Fallas</Text>
+            <Text style={styles.heroSubtitle}>MetroPT3 Air Compressor</Text>
           </View>
 
-          <View style={styles.presetsContainer}>
-            <Text style={styles.presetsLabel}>O selecciona un preset:</Text>
-            <View style={styles.presetsGrid}>
-              {ipPresets.map((preset, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={[styles.presetButton, serverIP === preset.ip && styles.presetButtonActive]}
-                  onPress={() => setServerIP(preset.ip)}
-                >
-                  <Text style={[styles.presetButtonText, serverIP === preset.ip && styles.presetButtonTextActive]}>
-                    {preset.label}
-                  </Text>
-                  <Text style={[styles.presetButtonSubtext, serverIP === preset.ip && styles.presetButtonSubtextActive]}>
-                    {preset.ip}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          {/* Contenido Principal */}
+          <View style={styles.connectionMainContent}>
+            {/* IP Input */}
+            <View style={styles.connectionSection}>
+              <Text style={styles.connectionSectionTitle}>Conexión al Servidor</Text>
+              <TextInput
+                style={styles.connectionInput}
+                value={serverIP}
+                onChangeText={setServerIP}
+                placeholder="192.168.1.100:5000"
+                placeholderTextColor="#cbd5e1"
+              />
+              <Text style={styles.connectionInputHelper}>Ingresa la IP y puerto del servidor</Text>
             </View>
-          </View>
 
-          <TouchableOpacity
-            style={[styles.connectButton, (!serverIP || loading) && styles.buttonDisabled]}
-            onPress={handleConnect}
-            disabled={!serverIP || loading}
-          >
-            {loading ? (
-              <View style={styles.buttonContent}>
-                <ActivityIndicator color="#fff" style={styles.spinner} />
-                <Text style={[styles.buttonText, {marginLeft: 10}]}>Conectando...</Text>
+            {/* Presets */}
+            <View style={styles.presetsContainerNew}>
+              <Text style={styles.presetsLabelNew}>Presets Rápidos</Text>
+              <View style={styles.presetsGridNew}>
+                {ipPresets.map((preset, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[styles.presetButtonNew, serverIP === preset.ip && styles.presetButtonNewActive]}
+                    onPress={() => setServerIP(preset.ip)}
+                  >
+                    <Text style={[styles.presetButtonTextNew, serverIP === preset.ip && styles.presetButtonTextNewActive]}>
+                      {preset.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-            ) : (
-              <Text style={styles.buttonText}>🚀 Conectar al Servidor</Text>
-            )}
-          </TouchableOpacity>
+            </View>
 
-          <View style={styles.noteContainer}>
-            <Text style={styles.noteText}>
-              <Text style={styles.noteBold}>ℹ️ Nota:</Text> Asegúrate de que el servidor esté ejecutándose y accesible en la red.
-            </Text>
-          </View>
+            {/* Info Cards */}
+            <View style={styles.connectionInfoCards}>
+              <View style={[styles.infoCard, {backgroundColor: '#e0f2fe'}]}>
+                <Text style={styles.infoCardIcon}>📊</Text>
+                <Text style={styles.infoCardTitle}>220,320</Text>
+                <Text style={styles.infoCardSubtitle}>Registros</Text>
+              </View>
+              <View style={[styles.infoCard, {backgroundColor: '#f0fdf4'}]}>
+                <Text style={styles.infoCardIcon}>🎯</Text>
+                <Text style={styles.infoCardTitle}>12</Text>
+                <Text style={styles.infoCardSubtitle}>Sensores</Text>
+              </View>
+              <View style={[styles.infoCard, {backgroundColor: '#fef2f2'}]}>
+                <Text style={styles.infoCardIcon}>⚠️</Text>
+                <Text style={styles.infoCardTitle}>1.4%</Text>
+                <Text style={styles.infoCardSubtitle}>Fallas</Text>
+              </View>
+            </View>
 
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoTitle}>🔗 Información de Conexión</Text>
-            <Text style={styles.infoText}>• Protocolo: HTTP/REST API</Text>
-            <Text style={styles.infoText}>• Endpoint: /predict</Text>
-            <Text style={styles.infoText}>• Método: POST</Text>
-            <Text style={styles.infoText}>• Timeout: 30 segundos</Text>
+            {/* Connect Button */}
+            <TouchableOpacity
+              style={[styles.connectButtonNew, (!serverIP || loading) && styles.buttonDisabledNew]}
+              onPress={handleConnect}
+              disabled={!serverIP || loading}
+            >
+              {loading ? (
+                <View style={styles.buttonContentNew}>
+                  <ActivityIndicator color="#fff" size="small" />
+                  <Text style={styles.buttonTextNew}>Conectando...</Text>
+                </View>
+              ) : (
+                <Text style={styles.buttonTextNew}>Conectar</Text>
+              )}
+            </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     );
   }
 
   // Página de inicio
   const HomePage = () => (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.pageContent}>
-      <View style={styles.headerCard}>
-        <Text style={styles.headerIcon}>🔧</Text>
-        <Text style={styles.headerTitle}>Sistema de Predicción de Fallas</Text>
-        <Text style={styles.headerSubtitle}>Compresor de Aire MetroPT3 - Modelo XGBoost con Optimización de Umbral</Text>
-      </View>
-
-      <View style={styles.statsGrid}>
-        <View style={[styles.statCard, styles.statCardPurple]}>
-          <Text style={styles.statIcon}>📊</Text>
-          <Text style={styles.statNumber}>220,320</Text>
-          <Text style={styles.statLabel}>Total Registros</Text>
+      {/* Quick Stats - Tres en fila */}
+      <View style={styles.quickStatsContainer}>
+        <View style={styles.quickStatItem}>
+          <Text style={styles.quickStatIcon}>📊</Text>
+          <Text style={styles.quickStatValue}>220.3K</Text>
+          <Text style={styles.quickStatLabel}>Registros</Text>
         </View>
-
-        <View style={[styles.statCard, styles.statCardRed]}>
-          <Text style={styles.statIcon}>⚠️</Text>
-          <Text style={styles.statNumber}>3,168</Text>
-          <Text style={styles.statLabel}>Fallas Registradas</Text>
+        <View style={styles.quickStatItem}>
+          <Text style={styles.quickStatIcon}>🎯</Text>
+          <Text style={styles.quickStatValue}>12</Text>
+          <Text style={styles.quickStatLabel}>Sensores</Text>
         </View>
-
-        <View style={[styles.statCard, styles.statCardBlue]}>
-          <Text style={styles.statIcon}>🎯</Text>
-          <Text style={styles.statNumber}>{modelInfo.variables}</Text>
-          <Text style={styles.statLabel}>Variables Sensores</Text>
-        </View>
-
-        <View style={[styles.statCard, styles.statCardGreen]}>
-          <Text style={styles.statIcon}>🎚️</Text>
-          <Text style={styles.statNumber}>{modelInfo.threshold.toFixed(4)}</Text>
-          <Text style={styles.statLabel}>Umbral Óptimo</Text>
+        <View style={styles.quickStatItem}>
+          <Text style={styles.quickStatIcon}>✅</Text>
+          <Text style={styles.quickStatValue}>95.2%</Text>
+          <Text style={styles.quickStatLabel}>Exactitud</Text>
         </View>
       </View>
 
+      {/* Main Features Grid - 2x2 */}
+      <View style={styles.featureGridLarge}>
+        <View style={[styles.featureCardLarge, {backgroundColor: '#e0f2fe', borderLeftColor: '#60a5fa'}]}>
+          <Text style={styles.featureCardIcon}>⚡</Text>
+          <Text style={styles.featureCardTitle}>Tiempo Real</Text>
+          <Text style={styles.featureCardDesc}>Predicciones instantáneas</Text>
+        </View>
+        <View style={[styles.featureCardLarge, {backgroundColor: '#f0fdf4', borderLeftColor: '#10b981'}]}>
+          <Text style={styles.featureCardIcon}>🤖</Text>
+          <Text style={styles.featureCardTitle}>XGBoost</Text>
+          <Text style={styles.featureCardDesc}>Modelo optimizado</Text>
+        </View>
+        <View style={[styles.featureCardLarge, {backgroundColor: '#fef3c7', borderLeftColor: '#f59e0b'}]}>
+          <Text style={styles.featureCardIcon}>📈</Text>
+          <Text style={styles.featureCardTitle}>Análisis</Text>
+          <Text style={styles.featureCardDesc}>Datos detallados</Text>
+        </View>
+        <View style={[styles.featureCardLarge, {backgroundColor: '#fce7f3', borderLeftColor: '#ec4899'}]}>
+          <Text style={styles.featureCardIcon}>🔔</Text>
+          <Text style={styles.featureCardTitle}>Alertas</Text>
+          <Text style={styles.featureCardDesc}>Notificaciones</Text>
+        </View>
+      </View>
+
+      {/* Model Info - Horizontal Layout */}
+      <View style={styles.modelInfoHorizontal}>
+        <View style={styles.modelInfoItemH}>
+          <Text style={styles.modelInfoLabelH}>Modelo</Text>
+          <Text style={styles.modelInfoValueH}>XGBoost</Text>
+        </View>
+        <View style={styles.dividerVertical} />
+        <View style={styles.modelInfoItemH}>
+          <Text style={styles.modelInfoLabelH}>Umbral</Text>
+          <Text style={styles.modelInfoValueH}>0.3847</Text>
+        </View>
+        <View style={styles.dividerVertical} />
+        <View style={styles.modelInfoItemH}>
+          <Text style={styles.modelInfoLabelH}>Precisión</Text>
+          <Text style={styles.modelInfoValueH}>92.8%</Text>
+        </View>
+      </View>
+
+      {/* Quick Action Buttons */}
+      <View style={styles.quickActionsContainer}>
+        <TouchableOpacity 
+          style={[styles.actionButton, {backgroundColor: '#e0f2fe', borderColor: '#60a5fa'}]}
+          onPress={() => setCurrentPage('prediction')}
+        >
+          <Text style={styles.actionButtonIcon}>🔮</Text>
+          <Text style={styles.actionButtonText}>Nueva Predicción</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.actionButton, {backgroundColor: '#f0fdf4', borderColor: '#10b981'}]}
+          onPress={() => setCurrentPage('analysis')}
+        >
+          <Text style={styles.actionButtonIcon}>📊</Text>
+          <Text style={styles.actionButtonText}>Ver Análisis</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* System Status */}
+      <View style={styles.systemStatusCard}>
+        <View style={styles.statusHeader}>
+          <Text style={styles.statusTitle}>Estado del Sistema</Text>
+          <View style={[styles.statusBadge, {backgroundColor: '#10b981'}]}>
+            <Text style={styles.statusBadgeText}>🟢 Operativo</Text>
+          </View>
+        </View>
+        <View style={styles.statusGrid}>
+          <View style={styles.statusItem}>
+            <Text style={styles.statusItemLabel}>Servidor</Text>
+            <Text style={styles.statusItemValue}>Conectado</Text>
+          </View>
+          <View style={styles.statusItem}>
+            <Text style={styles.statusItemLabel}>Sensores</Text>
+            <Text style={styles.statusItemValue}>12/12</Text>
+          </View>
+          <View style={styles.statusItem}>
+            <Text style={styles.statusItemLabel}>Modelo</Text>
+            <Text style={styles.statusItemValue}>Listo</Text>
+          </View>
+          <View style={styles.statusItem}>
+            <Text style={styles.statusItemLabel}>API</Text>
+            <Text style={styles.statusItemValue}>Activa</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Recent Activity */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>🎯 Información del Umbral de Decisión</Text>
-        <View style={styles.thresholdCard}>
-          <View style={styles.thresholdValueContainer}>
-            <Text style={styles.thresholdValue}>{modelInfo.threshold.toFixed(4)}</Text>
-            <Text style={styles.thresholdSubtext}>Umbral Optimizado</Text>
-            <Text style={styles.thresholdDescription}>Calculado mediante curva Precision-Recall</Text>
-          </View>
-          
-          <View style={styles.divider} />
-          
-          <Text style={styles.sectionText}>
-            <Text style={styles.bold}>¿Qué es el umbral?</Text>
-          </Text>
-          <Text style={styles.bodyText}>
-            El umbral es el <Text style={styles.bold}>punto de corte</Text> que determina si una predicción se clasifica como falla o no. Si la probabilidad predicha es ≥ {modelInfo.threshold.toFixed(4)}, se predice una falla.
-          </Text>
-          
-          <View style={styles.rulesList}>
-            <View style={styles.ruleItem}>
-              <View style={[styles.ruleDot, styles.ruleSuccess]} />
-              <Text style={styles.ruleText}>Probabilidad &lt; {modelInfo.threshold.toFixed(4)} → Sin Falla ✅</Text>
+        <Text style={styles.cardTitle}>📋 Actividad Reciente</Text>
+        <View style={styles.activityList}>
+          <View style={styles.activityItem}>
+            <View style={[styles.activityDot, {backgroundColor: '#ef4444'}]} />
+            <View style={styles.activityContent}>
+              <Text style={styles.activityText}>Falla detectada</Text>
+              <Text style={styles.activityTime}>Hace 2 horas</Text>
             </View>
-            <View style={styles.ruleItem}>
-              <View style={[styles.ruleDot, styles.ruleDanger]} />
-              <Text style={styles.ruleText}>Probabilidad ≥ {modelInfo.threshold.toFixed(4)} → Falla ⚠️</Text>
+          </View>
+          <View style={styles.activityItem}>
+            <View style={[styles.activityDot, {backgroundColor: '#10b981'}]} />
+            <View style={styles.activityContent}>
+              <Text style={styles.activityText}>Sistema normal</Text>
+              <Text style={styles.activityTime}>Hace 15 minutos</Text>
+            </View>
+          </View>
+          <View style={styles.activityItem}>
+            <View style={[styles.activityDot, {backgroundColor: '#3b82f6'}]} />
+            <View style={styles.activityContent}>
+              <Text style={styles.activityText}>Modelo actualizado</Text>
+              <Text style={styles.activityTime}>Ayer a las 10:30</Text>
             </View>
           </View>
         </View>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>⚙️ Características del Sistema</Text>
-        <View style={styles.featuresContainer}>
-          <View style={styles.featureRow}>
-            <View style={styles.featureIcon}>
-              <Text style={styles.featureIconText}>✅</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Modelo</Text>
-              <Text style={styles.featureText}>XGBoost con optimización GridSearchCV</Text>
-            </View>
-          </View>
-          <View style={styles.featureRow}>
-            <View style={styles.featureIcon}>
-              <Text style={styles.featureIconText}>✅</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Balanceo</Text>
-              <Text style={styles.featureText}>SMOTE para clases desbalanceadas</Text>
-            </View>
-          </View>
-          <View style={styles.featureRow}>
-            <View style={styles.featureIcon}>
-              <Text style={styles.featureIconText}>✅</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Umbral</Text>
-              <Text style={styles.featureText}>Optimizado mediante curva Precision-Recall</Text>
-            </View>
-          </View>
-          <View style={styles.featureRow}>
-            <View style={styles.featureIcon}>
-              <Text style={styles.featureIconText}>✅</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Escalado</Text>
-              <Text style={styles.featureText}>StandardScaler para normalización</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>🔬 Variables del Modelo</Text>
-        <View style={styles.variablesGrid}>
-          {sensorColumns.map((col, idx) => (
-            <View key={idx} style={styles.variableChip}>
-              <Text style={styles.variableText}>🔹 {sensorNames[col]}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>📋 Sobre el Sistema</Text>
-        <View style={styles.infoBox}>
-          <Text style={styles.bodyText}>
-            Este sistema utiliza técnicas avanzadas de <Text style={styles.bold}>Machine Learning</Text> para predecir fallas en compresores de aire basándose en datos de sensores en tiempo real. El modelo <Text style={styles.bold}>XGBoost</Text> ha sido entrenado con datos históricos y optimizado para maximizar la detección de fallas.
-          </Text>
-          <Text style={[styles.sectionText, {marginTop: 20}]}>Ventajas:</Text>
-          <Text style={styles.listItem}>🎯 Alta precisión en la detección de anomalías</Text>
-          <Text style={styles.listItem}>⚡ Respuesta en tiempo real</Text>
-          <Text style={styles.listItem}>📊 Análisis detallado con visualizaciones</Text>
-          <Text style={styles.listItem}>🔄 Procesamiento por lotes</Text>
-        </View>
+      {/* Connection Info Footer */}
+      <View style={styles.connectionInfoFooter}>
+        <Text style={styles.connectionInfoTitle}>📡 Información de Conexión</Text>
+        <Text style={styles.connectionInfoText}>IP: {serverIP}</Text>
+        <Text style={styles.connectionInfoText}>Estado: Conectado ✓</Text>
+        <TouchableOpacity
+          style={styles.disconnectButtonSmall}
+          onPress={() => {
+            setIsConnected(false);
+            setServerIP('');
+            setPrediction(null);
+            setSensorData({});
+          }}
+        >
+          <Text style={styles.disconnectButtonSmallText}>Desconectar</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -632,10 +665,10 @@ const App = () => {
         
         <View style={styles.modelInfoGrid}>
           {[
-            {label: 'Algoritmo', value: 'XGBoost', color: '#667eea'},
-            {label: 'Optimización', value: 'GridSearchCV', color: '#f093fb'},
-            {label: 'Balanceo', value: 'SMOTE', color: '#4facfe'},
-            {label: 'Escalado', value: 'StandardScaler', color: '#43e97b'}
+            {label: 'Algoritmo', value: 'XGBoost', color: '#60a5fa'},
+            {label: 'Optimización', value: 'GridSearchCV', color: '#93c5fd'},
+            {label: 'Balanceo', value: 'SMOTE', color: '#7dd3fc'},
+            {label: 'Escalado', value: 'StandardScaler', color: '#10b981'}
           ].map((info, idx) => (
             <View key={idx} style={[styles.modelInfoCard, {borderLeftColor: info.color}]}>
               <Text style={styles.modelInfoLabel}>{info.label}</Text>
@@ -888,73 +921,226 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.headerIconContainer}>
-            <Text style={styles.headerIconText}>⚡</Text>
-          </View>
-          <View>
-            <Text style={styles.headerTitleText}>Predicción de Fallas</Text>
-            <Text style={styles.headerIP}>📡 {serverIP}</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.disconnectButton}
-          onPress={() => {
-            setIsConnected(false);
-            setServerIP('');
-            setPrediction(null);
-            setSensorData({});
-          }}
-        >
-          <Text style={styles.disconnectText}>Desconectar</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Navigation */}
-      <View style={styles.navigation}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navContent}>
-          {[
-            { id: 'home', label: '🏠 Inicio' },
-            { id: 'prediction', label: '🔮 Predicción' },
-            { id: 'analysis', label: '📈 Análisis' },
-            { id: 'evaluation', label: '📉 Evaluación' }
-          ].map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[styles.navButton, currentPage === item.id && styles.navButtonActive]}
-              onPress={() => setCurrentPage(item.id)}
-            >
-              <Text style={[styles.navText, currentPage === item.id && styles.navTextActive]}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
       {/* Content */}
       {renderContent()}
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Sistema de Predicción de Fallas | MetroPT3</Text>
-        <Text style={styles.footerSubtext}>Desarrollado con ❤️ usando React Native</Text>
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNavigation}>
+        <TouchableOpacity
+          style={[styles.bottomNavButton, currentPage === 'home' && styles.bottomNavButtonActive]}
+          onPress={() => setCurrentPage('home')}
+        >
+          <Text style={[styles.bottomNavIcon, currentPage === 'home' && styles.bottomNavIconActive]}>🏠</Text>
+          <Text style={[styles.bottomNavLabel, currentPage === 'home' && styles.bottomNavLabelActive]}>Inicio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.bottomNavButton, currentPage === 'prediction' && styles.bottomNavButtonActive]}
+          onPress={() => setCurrentPage('prediction')}
+        >
+          <Text style={[styles.bottomNavIcon, currentPage === 'prediction' && styles.bottomNavIconActive]}>🔮</Text>
+          <Text style={[styles.bottomNavLabel, currentPage === 'prediction' && styles.bottomNavLabelActive]}>Predecir</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.bottomNavButton, currentPage === 'analysis' && styles.bottomNavButtonActive]}
+          onPress={() => setCurrentPage('analysis')}
+        >
+          <Text style={[styles.bottomNavIcon, currentPage === 'analysis' && styles.bottomNavIconActive]}>📈</Text>
+          <Text style={[styles.bottomNavLabel, currentPage === 'analysis' && styles.bottomNavLabelActive]}>Análisis</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.bottomNavButton, currentPage === 'evaluation' && styles.bottomNavButtonActive]}
+          onPress={() => setCurrentPage('evaluation')}
+        >
+          <Text style={[styles.bottomNavIcon, currentPage === 'evaluation' && styles.bottomNavIconActive]}>📉</Text>
+          <Text style={[styles.bottomNavLabel, currentPage === 'evaluation' && styles.bottomNavLabelActive]}>Modelos</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  // Pantalla de Conexión
+  // Pantalla de Conexión - Nuevo Diseño
+  connectionContainerNew: {
+    flex: 1,
+    backgroundColor: '#f0f9ff',
+  },
+  connectionScrollContentNew: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  heroSection: {
+    backgroundColor: 'linear-gradient(135deg, #60a5fa 0%, #bfdbfe 100%)',
+    paddingTop: 60,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#60a5fa',
+  },
+  heroIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+    zIndex: 1,
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 8,
+    zIndex: 1,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: '#e0f2fe',
+    textAlign: 'center',
+    zIndex: 1,
+  },
+  connectionMainContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 32,
+  },
+  connectionSection: {
+    marginBottom: 32,
+  },
+  connectionSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 16,
+  },
+  connectionInput: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#bfdbfe',
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: '#1e293b',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  connectionInputHelper: {
+    fontSize: 12,
+    color: '#64748b',
+    marginLeft: 4,
+  },
+  presetsContainerNew: {
+    marginBottom: 32,
+  },
+  presetsLabelNew: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#475569',
+    marginBottom: 12,
+  },
+  presetsGridNew: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  presetButtonNew: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    alignItems: 'center',
+  },
+  presetButtonNewActive: {
+    borderColor: '#60a5fa',
+    backgroundColor: '#e0f2fe',
+    borderWidth: 2,
+  },
+  presetButtonTextNew: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  presetButtonTextNewActive: {
+    color: '#0369a1',
+    fontWeight: '700',
+  },
+  connectionInfoCards: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  infoCard: {
+    flex: 1,
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  infoCardIcon: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  infoCardTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 2,
+  },
+  infoCardSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
+  },
+  connectButtonNew: {
+    backgroundColor: '#60a5fa',
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: '#60a5fa',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  buttonDisabledNew: {
+    backgroundColor: '#cbd5e1',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  buttonContentNew: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  buttonTextNew: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  // Pantalla de Conexión - Estilos Antiguos (Mantenidos por compatibilidad)
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
   },
   connectionContainer: {
     flex: 1,
-    backgroundColor: '#667eea',
+    backgroundColor: '#bfdbfe',
     padding: 20,
   },
   connectionCard: {
@@ -1010,14 +1196,14 @@ const styles = StyleSheet.create({
     color: '#1e293b',
   },
   connectButton: {
-    backgroundColor: '#667eea',
+    backgroundColor: '#60a5fa',
     borderRadius: 12,
     padding: 18,
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#667eea',
+    shadowColor: '#60a5fa',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
   },
@@ -1077,7 +1263,7 @@ const styles = StyleSheet.create({
   headerIconContainer: {
     width: 44,
     height: 44,
-    backgroundColor: '#667eea',
+    backgroundColor: '#60a5fa',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -1108,7 +1294,52 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Navigation
+  // Bottom Navigation
+  bottomNavigation: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    paddingBottom: 16,
+    paddingTop: 8,
+    paddingHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  bottomNavButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderTopWidth: 3,
+    borderTopColor: 'transparent',
+  },
+  bottomNavButtonActive: {
+    borderTopColor: '#60a5fa',
+    backgroundColor: '#f0f9ff',
+  },
+  bottomNavIcon: {
+    fontSize: 20,
+    marginBottom: 4,
+    color: '#94a3b8',
+  },
+  bottomNavIconActive: {
+    color: '#0369a1',
+  },
+  bottomNavLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+  },
+  bottomNavLabelActive: {
+    color: '#0369a1',
+    fontWeight: '700',
+  },
+
+  // Navigation (estilos antiguos)
   navigation: {
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -1124,8 +1355,8 @@ const styles = StyleSheet.create({
   },
   navButtonActive: {
     borderBottomWidth: 3,
-    borderBottomColor: '#667eea',
-    backgroundColor: '#f1f5f9',
+    borderBottomColor: '#60a5fa',
+    backgroundColor: '#f0f9ff',
   },
   navText: {
     fontSize: 14,
@@ -1133,7 +1364,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   navTextActive: {
-    color: '#667eea',
+    color: '#0369a1',
     fontWeight: '700',
   },
 
@@ -1173,14 +1404,14 @@ const styles = StyleSheet.create({
 
   // Header Card
   headerCard: {
-    backgroundColor: '#667eea',
+    backgroundColor: '#bfdbfe',
     borderRadius: 20,
     padding: 32,
     marginBottom: 16,
     alignItems: 'center',
-    shadowColor: '#667eea',
+    shadowColor: '#60a5fa',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
   },
@@ -1191,13 +1422,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#fff',
+    color: '#0f172a',
     textAlign: 'center',
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#e0e7ff',
+    color: '#0f172a',
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -1223,9 +1454,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statCardPurple: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#e0f2fe',
     borderLeftWidth: 4,
-    borderLeftColor: '#8b5cf6',
+    borderLeftColor: '#60a5fa',
   },
   statCardRed: {
     backgroundColor: '#fef2f2',
@@ -1233,9 +1464,9 @@ const styles = StyleSheet.create({
     borderLeftColor: '#ef4444',
   },
   statCardBlue: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#bfdbfe',
     borderLeftWidth: 4,
-    borderLeftColor: '#3b82f6',
+    borderLeftColor: '#60a5fa',
   },
   statCardGreen: {
     backgroundColor: '#f0fdf4',
@@ -1274,7 +1505,7 @@ const styles = StyleSheet.create({
   thresholdValue: {
     fontSize: 48,
     fontWeight: '800',
-    color: '#667eea',
+    color: '#60a5fa',
     marginBottom: 8,
   },
   thresholdSubtext: {
@@ -1429,14 +1660,14 @@ const styles = StyleSheet.create({
 
   // Primary Button
   primaryButton: {
-    backgroundColor: '#667eea',
+    backgroundColor: '#60a5fa',
     borderRadius: 12,
     padding: 18,
     alignItems: 'center',
     marginTop: 20,
-    shadowColor: '#667eea',
+    shadowColor: '#60a5fa',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
   },
@@ -1944,7 +2175,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#667eea',
+    backgroundColor: '#60a5fa',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -1981,7 +2212,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#667eea',
+    borderLeftColor: '#60a5fa',
   },
   recommendationFullIcon: {
     fontSize: 24,
@@ -2272,6 +2503,247 @@ const styles = StyleSheet.create({
   footerSubtext: {
     fontSize: 11,
     color: '#94a3b8',
+  },
+
+  // Nuevos Estilos para Página de Inicio
+  quickStatsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  quickStatItem: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  quickStatIcon: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  quickStatValue: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  quickStatLabel: {
+    fontSize: 10,
+    color: '#64748b',
+    fontWeight: '600',
+  },
+  featureGridLarge: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 24,
+  },
+  featureCardLarge: {
+    width: (width - 56) / 2,
+    borderRadius: 14,
+    padding: 16,
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  featureCardIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  featureCardTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  featureCardDesc: {
+    fontSize: 11,
+    color: '#64748b',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  modelInfoHorizontal: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  modelInfoItemH: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  modelInfoLabelH: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  modelInfoValueH: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#60a5fa',
+  },
+  dividerVertical: {
+    width: 1,
+    backgroundColor: '#e2e8f0',
+    marginHorizontal: 8,
+  },
+  quickActionsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+  },
+  actionButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  systemStatusCard: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statusHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  statusTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  statusBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  statusBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  statusGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statusItem: {
+    width: (width - 64) / 2,
+    backgroundColor: '#f8fafc',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  statusItemLabel: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  statusItemValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  activityList: {
+    gap: 12,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  activityDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 2,
+  },
+  activityTime: {
+    fontSize: 12,
+    color: '#94a3b8',
+  },
+  connectionInfoFooter: {
+    backgroundColor: '#e0f2fe',
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#60a5fa',
+    marginBottom: 24,
+  },
+  connectionInfoTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 8,
+  },
+  connectionInfoText: {
+    fontSize: 12,
+    color: '#64748b',
+    marginBottom: 4,
+  },
+  disconnectButtonSmall: {
+    marginTop: 12,
+    backgroundColor: '#ef4444',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  disconnectButtonSmallText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
 

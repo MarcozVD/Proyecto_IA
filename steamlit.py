@@ -21,76 +21,117 @@ st.set_page_config(
 # Estilos CSS personalizados mejorados
 st.markdown("""
     <style>
+    /* Cambio de fondo general de la página a claro */
+    html, body {
+        background-color: #f0f9ff !important;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background-color: #f0f9ff !important;
+    }
+    
+    [data-testid="stSidebarContent"] {
+        background-color: #e0f2fe !important;
+    }
+    
+    section[data-testid="stSidebar"] {
+        background-color: #e0f2fe !important;
+    }
+    
+    /* Main content area */
+    .main {
+        background-color: #f0f9ff !important;
+    }
+    
+    :root{
+        --bg:#f0f9ff;
+        --card-bg:#ffffff;
+        --muted:#94a3b8;
+        --primary-start:#7dd3fc;
+        --primary-end:#60a5fa;
+        --accent-start:#93c5fd;
+        --accent-end:#60a5fa;
+        --danger-start:#fb7185;
+        --danger-end:#ef4444;
+        --card-surface:#ffffff;
+    }
+    
     .main-header {
         font-size: 3rem;
-        font-weight: 700;
-        color: #1e3a8a;
+        font-weight: 800;
+        color: #0f172a;
         text-align: center;
         margin-bottom: 0.5rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        letter-spacing: -0.5px;
     }
+    
     .sub-header {
-        font-size: 2rem;
-        font-weight: 600;
-        color: #2563eb;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        border-bottom: 3px solid #3b82f6;
-        padding-bottom: 0.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 1.5rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 2px solid rgba(96,165,250,0.18);
     }
+    
     .stButton>button {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(90deg, var(--primary-end) 0%, var(--primary-start) 100%);
         color: white;
         border: none;
-        border-radius: 0.5rem;
-        padding: 0.75rem 2rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        padding: 0.6rem 1.4rem;
+        font-size: 1rem;
+        font-weight: 700;
+        transition: transform .18s ease, box-shadow .18s ease;
+        box-shadow: 0 6px 18px rgba(16,24,40,0.08);
     }
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    
+    .stButton>button:hover { 
+        transform: translateY(-3px); 
     }
+    
     .prediction-success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        padding: 2rem;
-        border-radius: 1rem;
+        background: linear-gradient(135deg, #d1fae5 0%, #86efac 100%);
+        padding: 1.6rem;
+        border-radius: 12px;
         color: white;
         text-align: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-size: 1.2rem;
+        font-weight: 800;
+        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
     }
+    
     .prediction-danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        padding: 2rem;
-        border-radius: 1rem;
+        background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+        padding: 1.6rem;
+        border-radius: 12px;
         color: white;
         text-align: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        animation: pulse 2s infinite;
+        font-size: 1.2rem;
+        font-weight: 800;
+        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
     }
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
-    }
+    
     .info-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        border-left: 4px solid #3b82f6;
-        color: #1f2937;
+        background: var(--card-surface);
+        padding: 1.25rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(2,6,23,0.04);
+        border-left: 6px solid rgba(96,165,250,0.6);
+        color: #0f172a;
     }
-    .info-card ul {
-        color: #374151;
+    
+    .info-card ul { 
+        color: #334155; 
     }
-    .info-card li {
-        color: #374151;
+    
+    .info-card li { 
+        color: #334155; 
+    }
+    
+    .small-muted { 
+        color: var(--muted); 
     }
     </style>
 """, unsafe_allow_html=True)
@@ -226,7 +267,7 @@ if page == "🏠 Dashboard":
     
     with col1:
         st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+                <div style='background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3 style='margin: 0; font-size: 2.5rem;'>{len(df_original) if df_original is not None else 0:,}</h3>
                 <p style='margin: 0.5rem 0 0 0; opacity: 0.9;'>Total Registros</p>
             </div>
@@ -235,7 +276,7 @@ if page == "🏠 Dashboard":
     with col2:
         fallas = df_original['falla'].sum() if df_original is not None and 'falla' in df_original.columns else 0
         st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+            <div style='background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3 style='margin: 0; font-size: 2.5rem;'>{fallas:,}</h3>
                 <p style='margin: 0.5rem 0 0 0; opacity: 0.9;'>Fallas Registradas</p>
             </div>
@@ -243,7 +284,7 @@ if page == "🏠 Dashboard":
     
     with col3:
         st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+            <div style='background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3 style='margin: 0; font-size: 2.5rem;'>{len(scaler.feature_names_in_)}</h3>
                 <p style='margin: 0.5rem 0 0 0; opacity: 0.9;'>Variables Sensores</p>
             </div>
@@ -251,7 +292,7 @@ if page == "🏠 Dashboard":
     
     with col4:
         st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+            <div style='background: linear-gradient(135deg, #d1fae5 0%, #86efac 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #044e54; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3 style='margin: 0; font-size: 2.5rem;'>{threshold:.3f}</h3>
                 <p style='margin: 0.5rem 0 0 0; opacity: 0.9;'>Umbral Óptimo</p>
             </div>
@@ -686,7 +727,7 @@ elif page == "📁 Predicción por Lote":
                                 values=[sin_fallas, fallas_detected],
                                 names=['Sin Falla', 'Falla Detectada'],
                                 title='Distribución de Predicciones',
-                                color_discrete_sequence=['#10b981', '#ef4444']
+                                color_discrete_sequence=['#60a5fa', '#ef4444']
                             )
                             st.plotly_chart(fig, use_container_width=True)
                         
@@ -750,28 +791,28 @@ elif page == "📈 Análisis de Datos":
         col1, col2, col3, col4 = st.columns(4)
         
         col1.markdown(f"""
-            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white;'>
+            <div style='background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3>{df_original.shape[0]:,}</h3>
                 <p style='margin: 0; opacity: 0.9;'>Registros</p>
             </div>
         """, unsafe_allow_html=True)
         
         col2.markdown(f"""
-            <div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white;'>
+            <div style='background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3>{df_original.shape[1]}</h3>
                 <p style='margin: 0; opacity: 0.9;'>Variables</p>
             </div>
         """, unsafe_allow_html=True)
         
         col3.markdown(f"""
-            <div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white;'>
+            <div style='background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3>{df_original.memory_usage(deep=True).sum() / 1024**2:.2f} MB</h3>
                 <p style='margin: 0; opacity: 0.9;'>Memoria</p>
             </div>
         """, unsafe_allow_html=True)
         
         col4.markdown(f"""
-            <div style='background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: white;'>
+            <div style='background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%); padding: 1.5rem; border-radius: 1rem; text-align: center; color: #0f172a; box-shadow: 0 4px 6px rgba(0,0,0,0.04);'>
                 <h3>Abr-Jul</h3>
                 <p style='margin: 0; opacity: 0.9;'>2020</p>
             </div>
@@ -842,7 +883,7 @@ elif page == "📈 Análisis de Datos":
                     labels=['Sin Falla', 'Con Falla'],
                     values=falla_counts.values,
                     hole=.4,
-                    marker_colors=['#10b981', '#ef4444'],
+                    marker_colors=['#60a5fa', '#ef4444'],
                     textinfo='label+percent+value',
                     textfont_size=14
                 )])
@@ -857,7 +898,7 @@ elif page == "📈 Análisis de Datos":
                 fig = go.Figure(data=[go.Bar(
                     x=['Sin Falla', 'Con Falla'],
                     y=falla_counts.values,
-                    marker_color=['#10b981', '#ef4444'],
+                    marker_color=['#60a5fa', '#ef4444'],
                     text=falla_counts.values,
                     textposition='auto',
                 )])
@@ -999,7 +1040,7 @@ elif page == "📈 Análisis de Datos":
                 df_original,
                 y=sensor_select,
                 title=f'Boxplot de {SENSOR_NAMES.get(sensor_select, sensor_select)}',
-                color_discrete_sequence=['#10b981']
+                color_discrete_sequence=['#60a5fa']
             )
             fig.update_layout(height=400, showlegend=False)
             st.plotly_chart(fig, use_container_width=True)
@@ -1015,7 +1056,7 @@ elif page == "📈 Análisis de Datos":
                 title=f'{SENSOR_NAMES.get(sensor_select, sensor_select)} - Comparación por Estado',
                 labels={'falla': 'Estado', sensor_select: 'Valor'},
                 color='falla',
-                color_discrete_map={0: '#10b981', 1: '#ef4444'}
+                color_discrete_map={0: '#60a5fa', 1: '#ef4444'}
             )
             fig.update_xaxes(ticktext=['Sin Falla', 'Con Falla'], tickvals=[0, 1])
             fig.update_layout(height=400, showlegend=False)
@@ -1170,7 +1211,7 @@ reg_lambda: {important_params['reg_lambda']}
             go.Bar(
                 x=metrics_df['Métrica'],
                 y=metrics_df['Valor'],
-                marker_color=['#667eea', '#f093fb', '#4facfe', '#43e97b'],
+                marker_color=['#60a5fa', '#bfdbfe', '#60a5fa', '#7dd3fc'],
                 text=metrics_df['Valor'],
                 texttemplate='%{text:.2%}',
                 textposition='outside'
@@ -1319,7 +1360,7 @@ reg_lambda: {important_params['reg_lambda']}
         'Neural Network': nn_probs
     }
     
-    colors_models = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899']
+    colors_models = ['#ef4444', '#60a5fa', '#93c5fd', '#f59e0b', '#a78bfa', '#f472b6']
     
     fig_roc = go.Figure()
     
