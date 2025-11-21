@@ -95,6 +95,4 @@ npx expo start -c
 **Contacto**
 - Para dudas o coordinación: contacta a los autores listados al principio (puedes agregar emails aquí si lo deseas).
 
----
 
-Si quieres que añada ejemplos de payload JSON para el endpoint `/predict`, scripts para entrenar el modelo desde cero, o un Dockerfile para desplegar el servicio, dime cuál prefieres y lo agrego.
