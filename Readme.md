@@ -92,7 +92,5 @@ npx expo start -c
 - Forkea el repo y crea un branch por feature/bugfix.
 - Asegúrate de mantener el estilo y actualizar `requirements.txt` o `package.json` si añades dependencias.
 
-**Contacto**
-- Para dudas o coordinación: contacta a los autores listados al principio (puedes agregar emails aquí si lo deseas).
 
 
